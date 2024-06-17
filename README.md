@@ -1,6 +1,6 @@
 # WebSocket
 
-Proyecto de inicio de laravel con Bootstrap.
+Proyecto de uso de WebSocket con laravel Reverb.
 
 <a name="top"></a>
 
