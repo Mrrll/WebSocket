@@ -10,6 +10,8 @@ Proyecto de uso de WebSocket con laravel Reverb.
 -   [Instalación de Laravel Echo](#item2)
 -   [Creamos evento y oyente](#item3)
 -   [Creamos oyente del cliente](#item4)
+-   [Uso y pruebas](#item5)
+-   [Mostramos toast](#item6)
 
 
 
@@ -190,6 +192,22 @@ use App\Events\MessageProcessed;
 
 ```console
 MessageProcessed::dispatch("Hola WebSocket");
+```
+
+> Pues eso es todo espero que sirva. 👍
+
+[Subir](#top)
+
+<a name="item6"></a>
+
+## Mostramos toast
+
+> Abrimos el archivo `bootstrap.js` ubicado en `resources\js\` añadimos lo siguiente.
+
+```js
+window.Echo.channel("events").listen("SendMessage", (e) => {
+    CreateToast("Hay un mensaje", e.message);
+});
 ```
 
 > Pues eso es todo espero que sirva. 👍

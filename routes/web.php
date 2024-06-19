@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ToastsController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +22,5 @@ require('forgot_password.php');
 Route::get('/', function () {
     return view('welcome');
 })->name('welcome');
+
+Route::get('toasts/ajax', [ToastsController::class, 'ajax']);

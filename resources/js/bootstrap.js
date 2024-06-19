@@ -40,5 +40,6 @@ window.Echo = new Echo({
 });
 
 window.Echo.channel("events").listen("SendMessage", (e) => {
+    CreateToast("Hay un mensaje", e.message);
     console.log(e.message);
 });

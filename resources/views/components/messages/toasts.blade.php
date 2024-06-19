@@ -10,7 +10,7 @@
             </svg>
         @endif
         <strong class="me-auto">@lang(ucfirst($title))</strong>
-        <small id="date_toast" class="{{ $type != 'info' ? 'text-white' : '' }}"></small>
+        <small id="date_toast" class="{{ $type != 'info' ? 'text-white' : '' }}">&times;</small>
         <button id="close_toats" type="button" class="btn-close {{ $type != 'info' ? 'btn-close-white' : '' }}"
             aria-label="Close"></button>
     </div>

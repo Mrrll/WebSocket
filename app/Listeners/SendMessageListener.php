@@ -2,7 +2,7 @@
 
 namespace App\Listeners;
 
-use App\Events\n;
+use App\Events\SendMessage;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
@@ -19,7 +19,7 @@ class SendMessageListener
     /**
      * Handle the event.
      */
-    public function handle(n $event): void
+    public function handle(SendMessage $event): void
     {
         //
     }

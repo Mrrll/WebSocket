@@ -15,7 +15,7 @@ class Toasts extends Component
         public String $type = 'success',
         public Bool $close = true,
         public Bool $icon = true,
-        public Int $delay = 5000,
+        public Int $delay = 10000,
         public String $autohide = 'true',
         public String $position = 'top-0 end-0'
     ) {
