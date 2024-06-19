@@ -12,6 +12,7 @@ Proyecto de uso de WebSocket con laravel Reverb.
 -   [Creamos oyente del cliente](#item4)
 -   [Uso y pruebas](#item5)
 -   [Mostramos toast](#item6)
+-   [Creamos Email](#item7)
 
 
 
@@ -208,6 +209,160 @@ MessageProcessed::dispatch("Hola WebSocket");
 window.Echo.channel("events").listen("SendMessage", (e) => {
     CreateToast("Hay un mensaje", e.message);
 });
+```
+
+[Subir](#top)
+
+<a name="item6"></a>
+
+## Creamos Email
+
+> Typee: en la Consola:
+
+```console
+php artisan make:mail MessageMailable
+```
+
+```console
+php artisan make:view mails.message
+```
+
+> Abrimos el archivo `MessageMailable.php` ubicado en `app\Mail\` añadimos lo siguiente.
+
+```php
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+
+class MessageMailable extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $body;
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct(string $body)
+    {
+        $this->body = $body;
+    }
+
+    /**
+     * Get the message envelope.
+     */
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'Envío de mensaje',
+        );
+    }
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
+    {
+        return new Content(
+            view: 'mails.message',
+        );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        return [];
+    }
+}
+
+```
+
+> Abrimos el archivo `message.blade.php` ubicado en `resources\mails\` añadimos lo siguiente.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Correo electrónico</h1>
+    <p>{{ $body }}</p>
+</body>
+</html>
+```
+> Abrimos el archivo `SendMessage.php` ubicado en `app\Listeners\` añadimos lo siguiente.
+
+```php
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Content;
+use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
+
+class MessageMailable extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    public $body;
+
+    /**
+     * Create a new message instance.
+     */
+    public function __construct(string $body)
+    {
+        $this->body = $body;
+    }
+
+    /**
+     * Get the message envelope.
+     */
+    public function envelope(): Envelope
+    {
+        return new Envelope(
+            subject: 'Envío de mensaje',
+        );
+    }
+
+    /**
+     * Get the message content definition.
+     */
+    public function content(): Content
+    {
+        return new Content(
+            view: 'mails.message',
+        );
+    }
+
+    /**
+     * Get the attachments for the message.
+     *
+     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
+     */
+    public function attachments(): array
+    {
+        return [];
+    }
+}
 ```
 
 > Pues eso es todo espero que sirva. 👍

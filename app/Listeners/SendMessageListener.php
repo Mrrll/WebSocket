@@ -3,8 +3,10 @@
 namespace App\Listeners;
 
 use App\Events\SendMessage;
+use App\Mail\MessageMailable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Support\Facades\Mail;
 
 class SendMessageListener
 {
@@ -21,6 +23,7 @@ class SendMessageListener
      */
     public function handle(SendMessage $event): void
     {
-        //
+        $correo = new MessageMailable($event->message);
+        Mail::to('ejemplo@ejemplo.com')->send($correo);
     }
 }
