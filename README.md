@@ -214,7 +214,7 @@ window.Echo.channel("events").listen("SendMessage", (e) => {
 
 [Subir](#top)
 
-<a name="item6"></a>
+<a name="item7"></a>
 
 ## Creamos Email
 
@@ -368,7 +368,7 @@ class MessageMailable extends Mailable
 
 [Subir](#top)
 
-<a name="item7"></a>
+<a name="item8"></a>
 
 ## Creamos un trabajo para la cola (Job & Queue)
 
