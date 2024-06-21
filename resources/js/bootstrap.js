@@ -39,7 +39,7 @@ window.Echo = new Echo({
     enabledTransports: ["ws", "wss"],
 });
 
-window.Echo.channel("events").listen("SendMessage", (e) => {
+window.Echo.channel("toast-channel").listen("ShowToastEvent", (e) => {
     CreateToast("Hay un mensaje", e.message);
     console.log(e.message);
 });

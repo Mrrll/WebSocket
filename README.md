@@ -13,6 +13,7 @@ Proyecto de uso de WebSocket con laravel Reverb.
 -   [Uso y pruebas](#item5)
 -   [Mostramos toast](#item6)
 -   [Creamos Email](#item7)
+-   [Creamos un trabajo para la cola (Job & Queue)](#item8)
 
 
 
@@ -363,6 +364,118 @@ class MessageMailable extends Mailable
         return [];
     }
 }
+```
+
+[Subir](#top)
+
+<a name="item7"></a>
+
+## Creamos un trabajo para la cola (Job & Queue)
+
+### Configuramos para utilizar la cola Queue
+
+> Abrimos el archivo `.env` ubicado en `\` y en la constante añadimos lo siguiente.
+
+```env
+QUEUE_CONNECTION=database
+```
+
+> Typee: en la Consola:
+
+```console
+php artisan queue:table
+```
+
+> [!IMPORTANT]
+> La instrucción es para la version 10 de laravel
+
+```console
+php artisan migrate
+```
+
+### Creamos el trabajo (Job) que enviara el email a la cola (Queue)
+
+> Typee: en la Consola:
+
+```console
+php artisan make:job SendEmailJob
+```
+
+### Creamos el evento que usara el websocket
+
+> Typee: en la Consola:
+
+```console
+php artisan make:event ShowToastEvent
+```
+
+> Abrimos el archivo `ShowToastEvent` ubicado en `app\Events\` y  añadimos lo siguiente.
+
+```php
+<?php
+
+namespace App\Events;
+
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Broadcasting\PresenceChannel;
+use Illuminate\Broadcasting\PrivateChannel;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use Illuminate\Foundation\Events\Dispatchable;
+use Illuminate\Queue\SerializesModels;
+
+class ShowToastEvent implements ShouldBroadcast
+{
+    use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    /**
+     * Create a new event instance.
+     */
+    public function __construct(public string $message) {}
+
+    /**
+     * Get the channels the event should broadcast on.
+     *
+     * @return array<int, \Illuminate\Broadcasting\Channel>
+     */
+    public function broadcastOn(): Channel
+    {
+        return new Channel('toast-channel');
+    }
+}
+```
+
+> Abrimos el archivo `SendEmailJob` ubicado en `app\Jobs\` y  añadimos lo siguiente.
+
+```php
+public function handle(): void
+{
+    $correo = new MessageMailable("Esto es un mensaje");
+    Mail::to('ejemplo@ejemplo.com')->send($correo);
+    event(new ShowToastEvent('Email enviado correctamente'));
+}
+```
+> [!WARNING]
+> No nos olvidemos de importar las clases.
+
+> Abrimos el archivo `bootstrap.js` ubicado en `resources\js\` añadimos lo siguiente.
+
+```js
+window.Echo.channel("toast-channel").listen("ShowToastEvent", (e) => {
+    CreateToast("Hay un mensaje", e.message);
+});
+```
+
+## Podemos probarlo de esta manera.
+
+> Abrimos el archivo `web.php` ubicado en `routes\` añadimos lo siguiente.
+
+```php
+Route::get('event', function () {
+
+    SendEmailJob::dispatch();
+
+});
 ```
 
 > Pues eso es todo espero que sirva. 👍
