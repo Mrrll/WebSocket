@@ -17,7 +17,12 @@ class ShowToastEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(public string $message) {}
+    public function __construct(
+        public string $title,
+        public string $message,
+        public string $type = "success",
+        public int $delay = 10000,
+        ) {}
 
     /**
      * Get the channels the event should broadcast on.

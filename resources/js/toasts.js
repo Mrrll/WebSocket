@@ -93,7 +93,9 @@ function CreateToast(
         });
         $(".toast").on("hidden.bs.toast", function () {
             $(this).remove();
-            $(".toast-container").find("svg").remove()
+            if ($(".toast:last").length === 0) {
+                $(".toast-container").find("svg").remove()
+            }
         });
         $(".toast:last").toast("show");
 

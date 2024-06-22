@@ -1,4 +1,4 @@
-<div class="toast-container position-absolute {{ session('message')['position'] ?? 'top-0 end-0' }} p-3">
+<div class="toast-container position-absolute {{ session('message')['position'] ?? 'top-0 end-0' }} p-3 toast-scroll">
     @if (session('message'))
         <x-messages.toasts type="{{ session('message')['type'] ?? 'info' }}"
             delay="{{ session('message')['delay'] ?? '5000' }}" :autohide="session('message')['autohide'] ?? 'true'" :icon="session('message')['icon'] ?? true">

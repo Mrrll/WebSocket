@@ -18,6 +18,10 @@
     background-color:$gray-400;
 }
 
+.toast-scroll {
+    overflow-y: auto;
+    height: 100vh;
+}
 @keyframes open_toast {
     from {
         transform: translateY(-100%);

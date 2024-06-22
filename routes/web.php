@@ -30,16 +30,7 @@ Route::get('/', function () {
 })->name('welcome');
 
 Route::get('event', function () {
-
-    SendEmailJob::dispatch();
-    SendEmailJob::dispatch();
-    SendEmailJob::dispatch();
-    SendEmailJob::dispatch();
-    SendEmailJob::dispatch();
-    SendEmailJob::dispatch();
-    SendEmailJob::dispatch();
-    SendEmailJob::dispatch();
-
+    SendEmailJob::dispatch('ejemplo@ejemplo.com');
 });
 
 

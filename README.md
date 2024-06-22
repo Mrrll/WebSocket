@@ -2,6 +2,12 @@
 
 Proyecto de uso de WebSocket con laravel Reverb.
 
+> [!TIP]
+> Estamos usando el repositorio [Laravel Initial Bootstrap](https://github.com/Mrrll/Laravel-Initial-Bootstrap) que puedes utilizar, tiene una explicación detallada para el uso del repositorio y todo lo que lleva implementado, para que puedas por ti mismo aplicarlo paso a paso o usarlo directamente. Este repositorio es una ayuda rápida para tener un entorno agradable y funcional de un proyecto de laravel 10 con bootstrap.
+
+> [!NOTE]
+> La finalidad de este proyecto es poder informar al usuario cuando ha finalizado un tarea que se ha ejecutado en segundo plano. Nos hemos ido guiando por la documentación de laravel, hemos utilizado: [Broadcasting](https://laravel.com/docs/10.x/broadcasting#server-side-installation), [Laravel Reverb](https://laravel.com/docs/10.x/reverb#introduction), [Queues](https://laravel.com/docs/10.x/queues#error-handling), [Events](https://laravel.com/docs/10.x/events#main-content) y [Mail](https://laravel.com/docs/10.x/mail#main-content).
+
 <a name="top"></a>
 
 ## Indice de Contenidos.
@@ -372,7 +378,12 @@ class ShowToastEvent implements ShouldBroadcast
     /**
      * Create a new event instance.
      */
-    public function __construct(public string $message) {}
+    public function __construct(
+        public string $title,
+        public string $message,
+        public string $type = "success",
+        public int $delay = 10000,
+        ) {}
 
     /**
      * Get the channels the event should broadcast on.
@@ -389,11 +400,49 @@ class ShowToastEvent implements ShouldBroadcast
 > Abrimos el archivo `SendEmailJob` ubicado en `app\Jobs\` y  añadimos lo siguiente.
 
 ```php
-public function handle(): void
+<?php
+
+namespace App\Jobs;
+
+use App\Events\ShowToastEvent;
+use App\Mail\MessageMailable;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Support\Facades\Mail;
+
+class SendEmailJob implements ShouldQueue
 {
-    $correo = new MessageMailable("Esto es un mensaje");
-    Mail::to('ejemplo@ejemplo.com')->send($correo);
-    event(new ShowToastEvent('Email enviado correctamente'));
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    public $title, $type;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(public string $email) {}
+
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        try {
+            $correo = new MessageMailable("Esto es un mensaje");
+            Mail::to($this->email)->send($correo);
+
+            $title = Lang::get('Success when sending !');
+            event(new ShowToastEvent($title, Lang::get('Success when sending your work to the email address '.$this->email), 'success', 5000));
+        } catch (\Throwable $th) {
+            $title = Lang::get('An unexpected error has occurred !');
+            event(new ShowToastEvent($title, Lang::get('Your work could not be emailed to '.$this->email), 'danger', 20000));
+        }
+
+    }
+
 }
 ```
 > [!WARNING]
@@ -403,19 +452,28 @@ public function handle(): void
 
 ```js
 window.Echo.channel("toast-channel").listen("ShowToastEvent", (e) => {
-    CreateToast("Hay un mensaje", e.message);
+    CreateToast(e.title, e.message, e.type, e.delay);
 });
 ```
 
 ## Podemos probarlo de esta manera.
 
+> [!IMPORTANT]
+> Hay que inicializar los respectivos servidores para el procesamiento.
+
+> Typee: en la Consola:
+
+```console
+php artisan reverb:start
+
+php artisan queue:work
+```
+
 > Abrimos el archivo `web.php` ubicado en `routes\` añadimos lo siguiente.
 
 ```php
 Route::get('event', function () {
-
-    SendEmailJob::dispatch();
-
+    SendEmailJob::dispatch('ejemplo@ejemplo.com');
 });
 ```
 
