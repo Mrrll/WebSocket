@@ -39,7 +39,7 @@ window.Echo = new Echo({
     enabledTransports: ["ws", "wss"],
 });
 
-window.Echo.channel("toast-channel").listen("ShowToastEvent", (e) => {
+window.Echo.private("toast-channel." + userId).listen("ShowToastEvent", (e) => {
     CreateToast(e.title, e.message, e.type, e.delay);
     console.log(e.message);
 });

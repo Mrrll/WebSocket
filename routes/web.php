@@ -30,7 +30,9 @@ Route::get('/', function () {
 })->name('welcome');
 
 Route::get('event', function () {
-    SendEmailJob::dispatch('ejemplo@ejemplo.com');
+
+    SendEmailJob::dispatch(auth()->user(),'ejemplo@ejemplo.com');
+    return auth()->user()->name;
 });
 
 

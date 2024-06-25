@@ -20,6 +20,7 @@ Proyecto de uso de WebSocket con laravel Reverb.
 -   [Mostramos toast](#item6)
 -   [Creamos Email](#item7)
 -   [Creamos un trabajo para la cola (Job & Queue)](#item8)
+-   [Canal Privado](#item9)
 
 
 
@@ -476,6 +477,116 @@ Route::get('event', function () {
     SendEmailJob::dispatch('ejemplo@ejemplo.com');
 });
 ```
+
+[Subir](#top)
+
+<a name="item9"></a>
+
+## Canal Privado
+
+> Abrimos el archivo `SendEmailJob` ubicado en `app\Jobs\` y  añadimos lo siguiente.
+
+```php
+public function __construct(public User $user, public string $email) {}
+```
+
+> Abrimos el archivo `web.php` ubicado en `routes\` añadimos lo siguiente.
+
+```php
+Route::get('event', function () {
+    SendEmailJob::dispatch(auth()->user(), 'ejemplo@ejemplo.com');
+});
+```
+
+>['!IMPORTANT']
+> Pasamos el usuario conectado, dentro de job o del evento la instrucción `auth()->user()` no es reconocida.
+
+> Abrimos el archivo `SendEmailJob` ubicado en `app\Jobs\` y  añadimos lo siguiente.
+
+```php
+public function __construct(public User $user, public string $email) {}
+
+public function handle(): void
+    {
+
+        try {
+            $correo = new MessageMailable("Esto es un mensaje");
+            Mail::to($this->email)->send($correo);
+
+            $title = Lang::get('Success when sending !');
+            event(new ShowToastEvent($this->user, $title, Lang::get('Success when sending your work to the email address '.$this->email), 'success', 5000));
+        } catch (\Throwable $th) {
+            $title = Lang::get('An unexpected error has occurred !');
+            event(new ShowToastEvent($this->user, $title, Lang::get('Your work could not be emailed to '.$this->email), 'danger', 20000));
+        }
+
+    }
+```
+
+> Abrimos el archivo `ShowToastEvent` ubicado en `app\Events\` y  añadimos lo siguiente.
+
+```php
+public function __construct(
+    public User $user,
+    public string $title,
+    public string $message,
+    public string $type = "success",
+    public int $delay = 10000,
+) {}
+```
+
+```php
+public function broadcastOn(): Channel
+{
+    return new PrivateChannel('toast-channel.'.$this->user->id);
+}
+```
+
+> [!WARNING]
+> No estamos definiendo una variable con el canal si no definiendo el nombre del canal este canal se llamará `private-toast-channel.(Id del usuario)`, el `private` lo coloca la clase `PrivateChannel`.
+
+### Pasarela de canales para permitir el acceso.
+
+> Abrimos el archivo `channels.php` ubicado en `routes\` añadimos lo siguiente.
+
+```php
+Broadcast::channel('toast-channel.{userId}', function (User $user, $userId) {
+    return (int) $user->id === (int) $userId;
+});
+```
+
+> [!WARNING]
+> El parámetro `userId` no llega del evento si no del front end, en el evento ya hemos definido el nombre del canal configurado para el usuario que esta autentificado en el sistema por la parte del back end, En esta pasarela escuchamos el nombre del evento para eso debe de coincidir el nombre del canal de parte del front end con el nombre del canal por parte del back end.
+
+### Laravel Echo el oyente del cliente.
+
+> Abrimos el archivo `bootstrap.js` ubicado en `resources\js\` añadimos lo siguiente.
+
+```js
+window.Echo.private("toast-channel." + userId).listen("ShowToastEvent", (e) => {
+    CreateToast(e.title, e.message, e.type, e.delay);
+});
+```
+> [!WARNING]
+> La variable `userId` sera undefined. Hay que pasarla.
+
+> [!TIP]
+> Ejemplo 1: en el mismo archivo `bootstrap.js` podemos recoger el valor de un input que este oculto en nuestro html.
+
+```js
+let userId = document.getElementById("userId").value
+```
+
+> [!TIP]
+> Ejemplo 2: Si tenemos un estructura html echa con layouts podemos ir al layout principal en este proyecto seria en `plantilla.blade.php` ubicado en `resources\views\layouts` y antes de declarar `@vite` escribimos lo siguiente.
+
+```html
+<script>
+    window.userId = "{{ auth()->user()->id ?? '' }}"
+</script>
+```
+
+### Y lo podemos probar de la misma manera accediendo la ruta `envent`.
 
 > Pues eso es todo espero que sirva. 👍
 

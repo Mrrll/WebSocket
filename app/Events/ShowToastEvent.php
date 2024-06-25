@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -18,11 +19,14 @@ class ShowToastEvent implements ShouldBroadcast
      * Create a new event instance.
      */
     public function __construct(
+        public User $user,
         public string $title,
         public string $message,
         public string $type = "success",
         public int $delay = 10000,
-        ) {}
+        ) {
+
+        }
 
     /**
      * Get the channels the event should broadcast on.
@@ -31,6 +35,6 @@ class ShowToastEvent implements ShouldBroadcast
      */
     public function broadcastOn(): Channel
     {
-        return new Channel('toast-channel');
+        return new PrivateChannel("toast-channel.". $this->user->id);
     }
 }

@@ -4,7 +4,7 @@
 
 @section('content')
     <main class="container-fluid ">
-        <h1>Welcome</h1>
+        <h1>Welcome {{ auth()->user()->name ?? '' }}</h1>
         <x-auth.singup.modal />
         <x-auth.singin.modal />
     </main>
